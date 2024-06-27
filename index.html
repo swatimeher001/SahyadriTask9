@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Table</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #2f2f5f;
+            color: rgb(232, 137, 232);
+        }           
+        table {  
+            background-color: #343486;
+        }
+        .form-control {
+            background-color: #2c2c54;
+            color: rgb(200, 14, 14);
+            border: none;
+        }
+        .form-control::placeholder {
+            color: #2074a8;
+        }
+        .btn {
+            margin-right: 5px;
+        }
+        .table-container {   
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .table-container .show-entries {
+            display: flex;
+        
+            align-items: center;
+        }
+        .table-container .show-entries label {
+            margin-right: 15px;
+           
+          
+        }
+        .table-container .search-box {
+            display: flex;
+            align-items: center;
+            
+            margin-left: 10px;  
+           
+        }
+        .table-container .search-box input {    
+            margin-left: 10px; 
+            padding-left: 30px; /* Adjust for search icon */ 
+        }
+        .search-box .search-icon {
+            position: relative;   
+            left: 100px;    
+
+        }
+        .add-customer-btn {
+            float: right;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .status-delivered {
+            color: #28a745;
+            border: 1px solid #28a745;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+        .status-process {
+            color: #ffc107;
+            border: 1px solid #ffc107;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+        .status-canceled {
+            color: #dc3545;
+            border: 1px solid #dc3545;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+        .sortable {
+            cursor: pointer;
+        }
+        .sortable::after {
+            content: ' ▲▼';
+            font-size: 12px;
+            color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="table-container">
+            <div class="show-entries">
+                <label for="showEntries">Show</label>
+                <select id="showEntries" class="form-select form-select-sm" style="width: auto;">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <label for="showEntries">entries</label>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <label for="search">Search:</label>            
+                <input type="text" id="search" class="form-control form-control-sm" style="width: auto;">
+            </div>
+            <button class="btn btn-primary add-customer-btn" id="addCustomer">+ Add Customer</button>
+        </div>
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th class="sortable">Tracking ID</th>
+                    <th>Product</th>
+                    <th>Customer</th>
+                    <th class="sortable">Date</th>
+                    <th class="sortable">Amount</th>
+                    <th>Payment Mode</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="customerTable">
+                <!-- Dynamic Rows Go Here -->
+            </tbody>
+        </table>
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+                <li class="page-item" id="paginationNumbers"><!-- Pagination Numbers Go Here --></li>
+                <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customerModalLabel">Add Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="customerForm">
+                        <div class="mb-3">
+                            <label for="trackingId" class="form-label">Tracking ID</label>
+                            <input type="text" class="form-control" id="trackingId" placeholder="Enter Tracking ID" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="product" class="form-label">Product</label>
+                            <input type="text" class="form-control" id="product" placeholder="Enter Product Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customer" class="form-label">Customer</label>
+                            <input type="text" class="form-control" id="customer" placeholder="Enter Customer Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount</label>
+                            <input type="number" class="form-control" id="amount" placeholder="Enter Amount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentMode" class="form-label">Payment Mode</label>
+                            <select class="form-control" id="paymentMode" required>
+                                <option value="" disabled selected>Select Payment Mode</option>
+                                <option value="Transfer Bank">Transfer Bank</option>
+                                <option value="Cash on Delivery">Cash on Delivery</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" required>
+                                <option value="" disabled selected>Select Status</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Process">Process</option>
+                                <option value="Canceled">Canceled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
